@@ -1,16 +1,22 @@
 <template>
-  <el-form class="dynamic-form" :inline="formConfig.inline" :model="value" :label-position="formConfig.labelPosition" :label-width="formConfig.labelWidth" :size='formConfig.size' :status-icon="formConfig.statusIcon">
+  <el-form
+    :model="value"
+    v-bind="formConfig"
+    class="dynamic-form"
+  >
 
     <dynamic-form-item
       v-for="item in formConfig.formItemList"
-      :key="item.key"
       v-if="value[item.key]!==undefined"
+      :key="item.key"
       :item="item"
+      v-bind="item"
       :value="value[item.key]"
+      :style="{'min-width':columnMinWidth}"
       @input="handleInput($event, item.key)"
-      :style="{'min-width':columnMinWidth}"></dynamic-form-item>
+    ></dynamic-form-item>
 
-    <slot/>
+    <slot></slot>
 
   </el-form>
 </template>
@@ -20,37 +26,37 @@ export default {
   props: {
     formConfig: {
       type: Object,
-      required: true
+      required: true,
     },
     value: {
       type: Object,
-      required: true
+      required: true,
     },
     columnMinWidth: {
-      type: String
-    }
+      type: String,
+    },
+  },
+  mounted() {
+    this.setDefaultValue();
   },
   methods: {
     handleInput(val, key) {
       // 这里element-ui没有上报event，直接就是value了
-      this.$emit('input', { ...this.value, [key]: val })
+      this.$emit('input', { ...this.value, [key]: val });
     },
     setDefaultValue() {
-      const formData = { ...this.value }
+      const formData = { ...this.value };
       // 设置默认值
       this.formConfig.formItemList.forEach(item => {
-        const { key, value } = item
+        const { key, value } = item;
         if (formData[key] === undefined || formData[key] === null) {
-          formData[key] = value
+          formData[key] = value;
         }
-      })
-      this.$emit('input', { ...formData })
-    }
+      });
+      this.$emit('input', { ...formData });
+    },
   },
-  mounted() {
-    this.setDefaultValue()
-  },
-}
+};
 </script>
 
 <style lang="less">
